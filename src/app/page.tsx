@@ -1,29 +1,30 @@
-import SimpleText from "@/components/SimpleText";
-import dynamic from "next/dynamic";
-import { useSearchParams } from "next/navigation";
+import Image from "next/image";
 
-const CameraFeed = dynamic(() => import("@/components/CameraFeed"), {
-  ssr: false,
-});
-
-export default function IntervenePage() {
-  const searchParams = useSearchParams();
-  const name = searchParams.get("name"); // URL에서 ?name=다미 가져오기
-
+export default function Home() {
   return (
-    <main style={{ padding: "2rem", textAlign: "center" }}>
-      <h1>당신은 지금 어떤 모습인가요?</h1>
-      <p>이 화면을 통해 스스로를 되돌아보는 시간을 가져보세요.</p>
-
-      {name && (
-        <p style={{ fontSize: "1.5rem", marginTop: "1.5rem" }}>
-          <strong>{name}</strong> 님, 안녕하세요.
-        </p>
-      )}
-
-      <div style={{ marginTop: "2rem" }}>
-        <SimpleText />
-      </div>
-    </main>
+    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
+        <Image
+          className="dark:invert"
+          src="/next.svg"
+          alt="Next.js logo"
+          width={180}
+          height={38}
+          priority
+        />
+        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
+          <li className="mb-2 tracking-[-.01em]">
+            Get started by editing{" "}
+            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
+              TEST{" "}
+            </code>
+            .
+          </li>
+          <li className="tracking-[-.01em]">
+            Save and see your changes instantly.
+          </li>
+        </ol>
+      </main>
+    </div>
   );
 }
