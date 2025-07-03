@@ -5,7 +5,7 @@ import { ModalityType } from "../types/modality";
 
 export default function AdminPage() {
   const router = useRouter();
-  const [username, setUsername] = useState("");
+  const [userName, setUserName] = useState("");
   const [shortsCount, setShortsCount] = useState("");
   const [modalDuration, setModalDuration] = useState("");
   const [modalType, setModalType] = useState("");
@@ -23,13 +23,13 @@ export default function AdminPage() {
       "image",
       "text",
       "voice",
-      "empty",
+      "blank",
     ];
     const isValidQ = qArray.every((modality) =>
       validModalities.includes(modality)
     );
 
-    if (!username || nArray.some(isNaN) || mArray.some(isNaN) || !isValidQ) {
+    if (!userName || nArray.some(isNaN) || mArray.some(isNaN) || !isValidQ) {
       alert("입력값을 확인해주세요.");
       return;
     }
@@ -46,7 +46,7 @@ export default function AdminPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username,
+          userName,
           shortsCount: nArray,
           modalDuration: mArray,
           modalType: qArray,
@@ -55,14 +55,14 @@ export default function AdminPage() {
       // 업로드 내용 콘솔
       console.log(
         "사용자 설정 업로드 (이름, 릴스 개수, 모달리티 시간, 모달리티 종류):",
-        { username, nArray, mArray, qArray }
+        { userName, nArray, mArray, qArray }
       );
     } catch (error) {
       console.error(error);
       alert("업로드 실패. 다시 시도해주세요.\n" + error);
     } finally {
       // 업로드 후 상태 초기화
-      setUsername("");
+      setUserName("");
       setShortsCount("");
       setModalDuration("");
       setModalType("");
@@ -74,7 +74,7 @@ export default function AdminPage() {
     localStorage.setItem(
       "experimentConfig",
       JSON.stringify({
-        username,
+        userName,
         shortsCount: nArray,
         modalDuration: mArray,
         modalType: qArray,
@@ -93,8 +93,8 @@ export default function AdminPage() {
           <input
             className="border-1 rounded-sm border-black"
             type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
             required
           />
         </div>
