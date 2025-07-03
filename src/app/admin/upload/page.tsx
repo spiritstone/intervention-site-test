@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { db, storage } from "../../utils/firebase";
+import { db, storage } from "../../utils/_firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
@@ -19,10 +19,11 @@ export default function UploadPage() {
 
     try {
       setUploading(true);
+      console.log("### Uploading:", uploading);
       const imageRef = ref(storage, `selfies/${name}_${Date.now()}.jpg`);
       const snapshot = await uploadBytes(imageRef, file);
       const downloadURL = await getDownloadURL(snapshot.ref);
-
+      console.log("#### upload info", { imageRef, snapshot, downloadURL });
       await setDoc(doc(db, "participants", name), {
         name,
         imageUrl: downloadURL,
@@ -44,35 +45,38 @@ export default function UploadPage() {
   };
 
   return (
-    <main style={{ padding: 32 }}>
-      <h1>참가자 정보 업로드</h1>
-      <form onSubmit={handleSubmit}>
-        <label>
-          이름: <br />
+    <div className="flex flex-col gap-8 p-6">
+      <div className="text-xl font-bold">참가자 정보 업로드</div>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+        <div className="flex flex-col gap-2">
+          <div className="font-semibold">이름</div>
           <input
+            className="border-1 rounded-sm border-black"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
           />
-        </label>
-        <br />
-        <br />
-        <label>
-          사진 선택: <br />
+        </div>
+        <div>
+          <div className="font-semibold">사진 선택:</div>
           <input
+            className="border-1 rounded-sm border-black"
             type="file"
             accept="image/*"
             onChange={(e) => setFile(e.target.files?.[0] || null)}
             required
           />
-        </label>
-        <br />
-        <br />
-        <button type="submit" disabled={uploading}>
+        </div>
+
+        <button
+          type="submit"
+          disabled={uploading}
+          className="rounded-xl bg-blue-500 text-white p-2"
+        >
           {uploading ? "업로드 중..." : "업로드"}
         </button>
       </form>
-    </main>
+    </div>
   );
 }

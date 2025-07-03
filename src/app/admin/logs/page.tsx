@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
-import { db } from "../../utils/firebase"; // Firebase 초기화된 객체
+import { db } from "../../utils/_firebase"; // Firebase 초기화된 객체
 import { ModalityType } from "../../types/modality";
 
 interface LogEntry {
