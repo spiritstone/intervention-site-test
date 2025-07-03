@@ -6,14 +6,14 @@ import { ModalityType } from "../types/modality";
 export default function AdminPage() {
   const router = useRouter();
   const [username, setUsername] = useState("");
-  const [n, setN] = useState("");
-  const [m, setM] = useState("");
-  const [q, setQ] = useState("");
+  const [shortsCount, setShortsCount] = useState("");
+  const [modalDuration, setM] = useState("");
+  const [modalType, setModalType] = useState("");
 
   const handleSubmit = () => {
-    const nArray = n.split(",").map((v) => parseInt(v.trim(), 10));
-    const mArray = m.split(",").map((v) => parseInt(v.trim(), 10));
-    const qArray = q.split(",").map((v) => v.trim() as ModalityType);
+    const nArray = shortsCount.split(",").map((v) => parseInt(v.trim(), 10));
+    const mArray = modalDuration.split(",").map((v) => parseInt(v.trim(), 10));
+    const qArray = modalType.split(",").map((v) => v.trim() as ModalityType);
 
     const validModalities: ModalityType[] = [
       "camera",
@@ -41,9 +41,9 @@ export default function AdminPage() {
       "experimentConfig",
       JSON.stringify({
         username,
-        n: nArray,
-        m: mArray,
-        q: qArray,
+        shortsCount: nArray,
+        modalDuration: mArray,
+        modalType: qArray,
       })
     );
 
@@ -58,16 +58,22 @@ export default function AdminPage() {
         <input value={username} onChange={(e) => setUsername(e.target.value)} />
       </label>
       <label>
-        릴스 개수 (n)
-        <input value={n} onChange={(e) => setN(e.target.value)} />
+        릴스 개수 (shortsCount)
+        <input
+          value={shortsCount}
+          onChange={(e) => setShortsCount(e.target.value)}
+        />
       </label>
       <label>
-        모달리티 시간 (m)
-        <input value={m} onChange={(e) => setM(e.target.value)} />
+        모달리티 시간 (modalDuration)
+        <input value={modalDuration} onChange={(e) => setM(e.target.value)} />
       </label>
       <label>
-        모달리티 종류 (q)
-        <input value={q} onChange={(e) => setQ(e.target.value)} />
+        모달리티 종류 (modalType)
+        <input
+          value={modalType}
+          onChange={(e) => setModalType(e.target.value)}
+        />
       </label>
       <button onClick={handleSubmit}>시작</button>
     </div>
