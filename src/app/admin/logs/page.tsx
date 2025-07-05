@@ -1,58 +1,141 @@
 "use client";
 import { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "../../utils/_firebase"; // Firebase 초기화된 객체
+import { supabase } from "../../utils/supabase"; // Supabase client
 import { ModalityType } from "../../types/modality";
 
 interface LogEntry {
-  id: string;
+  logs_id: number;
+  logs_userId: string;
+  totalShortsCount: number;
+  totalDuration: number;
+}
+
+interface Participant {
+  id: number;
   userId: string;
-  stoppedAt: string;
-  startTime: string;
-  endTime: string;
-  duration: string;
-  n: number[];
-  m: number[];
-  q: ModalityType[];
+  shortsCount: number[];
+  modalDuration: number[];
+  modalType: ModalityType[];
 }
 
 export default function LogsPage() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [participants, setParticipants] = useState<Participant[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchLogs = async () => {
-      const snapshot = await getDocs(collection(db, "logs"));
-      const entries: LogEntry[] = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as LogEntry[];
-      setLogs(entries);
+    const fetchData = async () => {
+      const { data: logsData, error: logsError } = await supabase
+        .from("logs")
+        .select("*");
+
+      const { data: participantsData, error: participantsError } =
+        await supabase.from("participants").select("*");
+
+      if (logsError || participantsError) {
+        console.error("Error fetching data:", logsError || participantsError);
+      } else {
+        setLogs(logsData || []);
+        setParticipants(participantsData || []);
+      }
+
       setLoading(false);
     };
 
-    fetchLogs();
+    fetchData();
   }, []);
 
   return (
-    <main style={{ padding: 32 }}>
-      <h1>실험 로그</h1>
+    <div className="flex flex-col gap-8">
+      <div>실험 로그</div>
       {loading && <p>불러오는 중...</p>}
-      {!loading && logs.length === 0 && <p>로그가 없습니다.</p>}
-      {logs.map((log) => (
-        <div
-          key={log.id}
-          style={{ border: "1px solid #ccc", padding: 12, marginBottom: 16 }}
-        >
-          <strong>이름:</strong> {log.userId} <br />
-          <strong>시작:</strong> {log.startTime} <br />
-          <strong>중단:</strong> {log.endTime} <br />
-          <strong>총 시간:</strong> {log.duration} <br />
-          <strong>n:</strong> [{log.n.join(", ")}] <br />
-          <strong>m:</strong> [{log.m.join(", ")}] <br />
-          <strong>q:</strong> [{log.q.join(", ")}] <br />
-        </div>
-      ))}
-    </main>
+      {!loading && (
+        <>
+          <h2>Participants</h2>
+          {participants.length === 0 ? (
+            <p>참여자 없음</p>
+          ) : (
+            <table
+              style={{
+                borderCollapse: "collapse",
+                width: "100%",
+                marginBottom: 32,
+              }}
+            >
+              <thead>
+                <tr>
+                  <th style={{ border: "1px solid #aaa", padding: 8 }}>
+                    User ID
+                  </th>
+                  <th style={{ border: "1px solid #aaa", padding: 8 }}>
+                    Shorts Count
+                  </th>
+                  <th style={{ border: "1px solid #aaa", padding: 8 }}>
+                    Modal Duration
+                  </th>
+                  <th style={{ border: "1px solid #aaa", padding: 8 }}>
+                    Modal Type
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {participants.map((p) => (
+                  <tr key={p.id}>
+                    <td style={{ border: "1px solid #aaa", padding: 8 }}>
+                      {p.userId}
+                    </td>
+                    <td style={{ border: "1px solid #aaa", padding: 8 }}>
+                      {p.shortsCount.join(", ")}
+                    </td>
+                    <td style={{ border: "1px solid #aaa", padding: 8 }}>
+                      {p.modalDuration.join(", ")}
+                    </td>
+                    <td style={{ border: "1px solid #aaa", padding: 8 }}>
+                      {p.modalType.join(", ")}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+
+          <h2>Logs</h2>
+          {logs.length === 0 ? (
+            <p>로그가 없습니다.</p>
+          ) : (
+            <table style={{ borderCollapse: "collapse", width: "100%" }}>
+              <thead>
+                <tr>
+                  <th style={{ border: "1px solid #ccc", padding: 8 }}>
+                    User ID
+                  </th>
+                  <th style={{ border: "1px solid #ccc", padding: 8 }}>
+                    Total Shorts Count
+                  </th>
+                  <th style={{ border: "1px solid #ccc", padding: 8 }}>
+                    Total Duration
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {logs.map((log) => (
+                  <tr key={log.logs_id}>
+                    <td style={{ border: "1px solid #ccc", padding: 8 }}>
+                      {log.logs_userId}
+                    </td>
+                    <td style={{ border: "1px solid #ccc", padding: 8 }}>
+                      {log.totalShortsCount}
+                    </td>
+                    <td style={{ border: "1px solid #ccc", padding: 8 }}>
+                      {log.totalDuration}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </>
+      )}
+    </div>
   );
 }
