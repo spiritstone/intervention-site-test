@@ -1,10 +1,8 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { ModalityType } from "../types/modality";
 
 export default function AdminPage() {
-  const router = useRouter();
   const [userId, setUserId] = useState("");
   const [shortsCount, setShortsCount] = useState("");
   const [modalDuration, setModalDuration] = useState("");

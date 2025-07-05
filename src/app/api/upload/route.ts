@@ -29,8 +29,8 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ message: "업로드 성공", data });
-  } catch (err: any) {
+  } catch (err) {
     console.error("❌ Unexpected error:", err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ err }, { status: 500 });
   }
 }
