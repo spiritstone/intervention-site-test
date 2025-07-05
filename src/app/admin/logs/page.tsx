@@ -1,6 +1,6 @@
 "use client";
+
 import { useEffect, useState } from "react";
-import { supabase } from "../../utils/supabase"; // Supabase client
 import { ModalityType } from "../../types/modality";
 
 interface LogEntry {
@@ -25,21 +25,21 @@ export default function LogsPage() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data: logsData, error: logsError } = await supabase
-        .from("logs")
-        .select("*");
+      try {
+        const res = await fetch("/api/admin/logs");
+        const result = await res.json();
 
-      const { data: participantsData, error: participantsError } =
-        await supabase.from("participants").select("*");
-
-      if (logsError || participantsError) {
-        console.error("Error fetching data:", logsError || participantsError);
-      } else {
-        setLogs(logsData || []);
-        setParticipants(participantsData || []);
+        if (res.ok) {
+          setLogs(result.logs || []);
+          setParticipants(result.participants || []);
+        } else {
+          console.error("Fetch failed:", result);
+        }
+      } catch (err) {
+        console.error("Error fetching data:", err);
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     };
 
     fetchData();
