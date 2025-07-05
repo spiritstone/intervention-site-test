@@ -5,7 +5,7 @@ import { ModalityType } from "../types/modality";
 
 export default function AdminPage() {
   const router = useRouter();
-  const [userName, setUserName] = useState("");
+  const [userId, setUserId] = useState("");
   const [shortsCount, setShortsCount] = useState("");
   const [modalDuration, setModalDuration] = useState("");
   const [modalType, setModalType] = useState("");
@@ -29,7 +29,7 @@ export default function AdminPage() {
       validModalities.includes(modality)
     );
 
-    if (!userName || nArray.some(isNaN) || mArray.some(isNaN) || !isValidQ) {
+    if (!userId || nArray.some(isNaN) || mArray.some(isNaN) || !isValidQ) {
       alert("입력값을 확인해주세요.");
       return;
     }
@@ -46,7 +46,7 @@ export default function AdminPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userName,
+          userId: userId,
           shortsCount: nArray,
           modalDuration: mArray,
           modalType: qArray,
@@ -55,14 +55,14 @@ export default function AdminPage() {
       // 업로드 내용 콘솔
       console.log(
         "사용자 설정 업로드 (이름, 릴스 개수, 모달리티 시간, 모달리티 종류):",
-        { userName, nArray, mArray, qArray }
+        { userId, nArray, mArray, qArray }
       );
     } catch (error) {
       console.error(error);
       alert("업로드 실패. 다시 시도해주세요.\n" + error);
     } finally {
       // 업로드 후 상태 초기화
-      setUserName("");
+      setUserId("");
       setShortsCount("");
       setModalDuration("");
       setModalType("");
@@ -74,7 +74,7 @@ export default function AdminPage() {
     localStorage.setItem(
       "experimentConfig",
       JSON.stringify({
-        userName,
+        userId: userId,
         shortsCount: nArray,
         modalDuration: mArray,
         modalType: qArray,
@@ -89,17 +89,22 @@ export default function AdminPage() {
       <div className="text-xl font-bold">관리자 설정: 참가자 정보 업로드</div>
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
-          <div className="font-semibold">이름</div>
+          <div className="font-semibold">
+            사용자 ID (알파벳 한 자리 + 숫자 세 자리)
+          </div>
           <input
             className="border-1 rounded-sm border-black"
             type="text"
-            value={userName}
-            onChange={(e) => setUserName(e.target.value)}
+            value={userId}
+            onChange={(e) => setUserId(e.target.value)}
             required
           />
         </div>
         <div className="flex flex-col gap-2">
-          <div className="font-semibold"> 릴스 개수 (shortsCount)</div>
+          <div className="font-semibold">
+            {" "}
+            릴스 개수 (shortsCount) (입력 예: 1, 2, 3, 4, 5)
+          </div>
           <input
             className="border-1 rounded-sm border-black"
             // type="text"
@@ -109,7 +114,10 @@ export default function AdminPage() {
           />
         </div>
         <div className="flex flex-col gap-2">
-          <div className="font-semibold"> 모달리티 시간 (modalDuration)</div>
+          <div className="font-semibold">
+            {" "}
+            모달리티 시간 (modalDuration) (입력 예: 1, 2, 3, 4, 5)
+          </div>
           <input
             className="border-1 rounded-sm border-black"
             // type="text"
@@ -119,7 +127,10 @@ export default function AdminPage() {
           />
         </div>
         <div className="flex flex-col gap-2">
-          <div className="font-semibold"> 모달리티 종류 (modalType)</div>
+          <div className="font-semibold">
+            모달리티 종류 (modalType) (입력 예: camera, image, text, voice,
+            blank)
+          </div>
           <input
             className="border-1 rounded-sm border-black"
             // type="text"

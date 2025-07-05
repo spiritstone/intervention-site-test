@@ -6,7 +6,7 @@ import { ModalityType } from "../../types/modality";
 
 interface LogEntry {
   id: string;
-  name: string;
+  userId: string;
   stoppedAt: string;
   startTime: string;
   endTime: string;
@@ -44,7 +44,7 @@ export default function LogsPage() {
           key={log.id}
           style={{ border: "1px solid #ccc", padding: 12, marginBottom: 16 }}
         >
-          <strong>이름:</strong> {log.name} <br />
+          <strong>이름:</strong> {log.userId} <br />
           <strong>시작:</strong> {log.startTime} <br />
           <strong>중단:</strong> {log.endTime} <br />
           <strong>총 시간:</strong> {log.duration} <br />
