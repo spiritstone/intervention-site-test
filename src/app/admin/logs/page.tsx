@@ -28,7 +28,7 @@ export default function LogsPage() {
       try {
         const res = await fetch("/api/admin/logs");
         const result = await res.json();
-
+        console.log("🔍 API result:", result);
         if (res.ok) {
           setLogs(result.logs || []);
           setParticipants(result.participants || []);

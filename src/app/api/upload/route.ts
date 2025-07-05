@@ -1,6 +1,12 @@
 // src/app/api/upload/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "../../utils/supabase";
+import { createClient } from "@supabase/supabase-js";
+
+// Use environment variables for secure server-side Supabase client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,18 +16,19 @@ export async function POST(req: NextRequest) {
     const { userId, shortsCount, modalDuration, modalType } = body;
 
     // table name: participants
-    const { data, error } = await supabase.from("participants").upsert(
-      [
-        {
-          userId,
-          shortsCount,
-          modalDuration,
-          modalType,
-          created_at: new Date().toISOString(),
-        },
-      ],
-      { onConflict: "userId" }
-    );
+    const { data, error } = await supabase.from("participants").select("*");
+    // const { data, error } = await supabase.from("participants").upsert(
+    //   [
+    //     {
+    //       userId,
+    //       shortsCount,
+    //       modalDuration,
+    //       modalType,
+    //       created_at: new Date().toISOString(),
+    //     },
+    //   ],
+    //   { onConflict: "userId" }
+    // );
 
     if (error) {
       console.error("❌ Supabase insert error:", error);
