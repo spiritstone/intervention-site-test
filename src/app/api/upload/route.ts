@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     console.log(">>> API 요청 데이터:", body);
 
-    const { userId, shortsCount, modalDuration, modalType } = body;
+    // const { userId, shortsCount, modalDuration, modalType } = body;
 
     // table name: participants
     const { data, error } = await supabase.from("participants").select("*");
