@@ -21,18 +21,21 @@ export async function POST(req: NextRequest) {
       durationSec,
     } = body;
 
-    const { data, error } = await supabase.from("logs").insert([
-      {
-        userId,
-        interventionIndex,
-        shortsWatched,
-        modType,
-        modDuration,
-        startTime,
-        stopTime,
-        durationSec,
-      },
-    ]);
+    const { data, error } = await supabase
+      .from("logs")
+      .insert([
+        {
+          userId,
+          interventionIndex,
+          shortsWatched,
+          modType,
+          modDuration,
+          startTime,
+          stopTime,
+          durationSec,
+        },
+      ])
+      .select();
 
     if (error) {
       console.error("❌ 로그 저장 실패:", error);
