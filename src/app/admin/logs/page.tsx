@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo } from "react";
 import {
   Table,
   TableHeader,
@@ -154,52 +154,6 @@ export default function LogsPage() {
               </TableBody>
             </Table>
           </div>
-
-          {/* Logs Table */}
-          <div>
-            <div className="text-xl font-semibold px-6">Logs</div>
-
-            <Table
-              classNames={tableClassNames}
-              baseRef={logsScrollerRef}
-              bottomContent={
-                <div className="p-2 text-center">
-                  <Spinner ref={logsLoaderRef} color="white" />
-                </div>
-              }
-              aria-label="Logs Table"
-              isHeaderSticky
-            >
-              <TableHeader>
-                {logColumns.map((col) => (
-                  <TableColumn
-                    key={col.key}
-                    className="border px-4 py-2 bg-green-200 sticky top-0 z-10"
-                  >
-                    {col.label}
-                  </TableColumn>
-                ))}
-              </TableHeader>
-              <TableBody
-                items={logs}
-                isLoading={list.isLoading}
-                loadingContent={<Spinner label="Loading..." />}
-              >
-                {(item) => (
-                  <TableRow key={item.logs_id}>
-                    {logColumns.map((col) => (
-                      <TableCell key={col.key} className="border px-4 py-2">
-                        {col.key === "startTime" || col.key === "stopTime"
-                          ? formatToKoreanTime(item[col.key])
-                          : getKeyValue(item, col.key)}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-
           {/* Sessions Table */}
           <div>
             <div className="text-xl font-semibold px-6">Sessions</div>
@@ -248,6 +202,50 @@ export default function LogsPage() {
 
                           return getKeyValue(item, key);
                         })()}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          {/* Logs Table */}
+          <div>
+            <div className="text-xl font-semibold px-6">Logs</div>
+
+            <Table
+              classNames={tableClassNames}
+              baseRef={logsScrollerRef}
+              bottomContent={
+                <div className="p-2 text-center">
+                  <Spinner ref={logsLoaderRef} color="white" />
+                </div>
+              }
+              aria-label="Logs Table"
+              isHeaderSticky
+            >
+              <TableHeader>
+                {logColumns.map((col) => (
+                  <TableColumn
+                    key={col.key}
+                    className="border px-4 py-2 bg-green-200 sticky top-0 z-10"
+                  >
+                    {col.label}
+                  </TableColumn>
+                ))}
+              </TableHeader>
+              <TableBody
+                items={logs}
+                isLoading={list.isLoading}
+                loadingContent={<Spinner label="Loading..." />}
+              >
+                {(item) => (
+                  <TableRow key={item.logs_id}>
+                    {logColumns.map((col) => (
+                      <TableCell key={col.key} className="border px-4 py-2">
+                        {col.key === "startTime" || col.key === "stopTime"
+                          ? formatToKoreanTime(item[col.key])
+                          : getKeyValue(item, col.key)}
                       </TableCell>
                     ))}
                   </TableRow>
