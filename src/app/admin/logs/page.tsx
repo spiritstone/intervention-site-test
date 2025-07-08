@@ -109,160 +109,151 @@ export default function LogsPage() {
             <div className="text-xl font-semibold px-6 text-black">
               Participants
             </div>
-            {participants.length === 0 ? (
-              <div>참여자 없음</div>
-            ) : (
-              <Table
-                classNames={tableClassNames}
-                baseRef={participantsScrollerRef}
-                bottomContent={
-                  <div className="p-2 text-center">
-                    <Spinner ref={participantsLoaderRef} color="white" />
-                  </div>
-                }
-                aria-label="Participants Table"
-                isHeaderSticky
+
+            <Table
+              classNames={tableClassNames}
+              baseRef={participantsScrollerRef}
+              bottomContent={
+                <div className="p-2 text-center">
+                  <Spinner ref={participantsLoaderRef} color="white" />
+                </div>
+              }
+              aria-label="Participants Table"
+              isHeaderSticky
+            >
+              <TableHeader>
+                {participantColumns.map((col) => (
+                  <TableColumn
+                    key={col.key}
+                    className="border px-4 py-2 bg-green-200 sticky top-0 z-10"
+                  >
+                    {col.label}
+                  </TableColumn>
+                ))}
+              </TableHeader>
+              <TableBody
+                items={participants}
+                isLoading={list.isLoading}
+                loadingContent={<Spinner label="Loading..." />}
               >
-                <TableHeader>
-                  {participantColumns.map((col) => (
-                    <TableColumn
-                      key={col.key}
-                      className="border px-4 py-2 bg-green-200 sticky top-0 z-10"
-                    >
-                      {col.label}
-                    </TableColumn>
-                  ))}
-                </TableHeader>
-                <TableBody
-                  items={participants}
-                  isLoading={list.isLoading}
-                  loadingContent={<Spinner label="Loading..." />}
-                >
-                  {(item) => (
-                    <TableRow key={item.id}>
-                      {participantColumns.map((col) => (
-                        <TableCell key={col.key} className="border px-4 py-2">
-                          {col.key === "shortsCount" ||
-                          col.key === "modalDuration" ||
-                          col.key === "modalType"
-                            ? Array.isArray(item[col.key])
-                              ? item[col.key].join(", ")
-                              : ""
-                            : getKeyValue(item, col.key)}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            )}
+                {(item) => (
+                  <TableRow key={item.id}>
+                    {participantColumns.map((col) => (
+                      <TableCell key={col.key} className="border px-4 py-2">
+                        {col.key === "shortsCount" ||
+                        col.key === "modalDuration" ||
+                        col.key === "modalType"
+                          ? Array.isArray(item[col.key])
+                            ? item[col.key].join(", ")
+                            : ""
+                          : getKeyValue(item, col.key)}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           </div>
 
           {/* Logs Table */}
           <div>
             <div className="text-xl font-semibold px-6">Logs</div>
-            {logs.length === 0 ? (
-              <div>로그가 없습니다.</div>
-            ) : (
-              <Table
-                classNames={tableClassNames}
-                baseRef={logsScrollerRef}
-                bottomContent={
-                  <div className="p-2 text-center">
-                    <Spinner ref={logsLoaderRef} color="white" />
-                  </div>
-                }
-                aria-label="Logs Table"
-                isHeaderSticky
+
+            <Table
+              classNames={tableClassNames}
+              baseRef={logsScrollerRef}
+              bottomContent={
+                <div className="p-2 text-center">
+                  <Spinner ref={logsLoaderRef} color="white" />
+                </div>
+              }
+              aria-label="Logs Table"
+              isHeaderSticky
+            >
+              <TableHeader>
+                {logColumns.map((col) => (
+                  <TableColumn
+                    key={col.key}
+                    className="border px-4 py-2 bg-green-200 sticky top-0 z-10"
+                  >
+                    {col.label}
+                  </TableColumn>
+                ))}
+              </TableHeader>
+              <TableBody
+                items={logs}
+                isLoading={list.isLoading}
+                loadingContent={<Spinner label="Loading..." />}
               >
-                <TableHeader>
-                  {logColumns.map((col) => (
-                    <TableColumn
-                      key={col.key}
-                      className="border px-4 py-2 bg-green-200 sticky top-0 z-10"
-                    >
-                      {col.label}
-                    </TableColumn>
-                  ))}
-                </TableHeader>
-                <TableBody
-                  items={logs}
-                  isLoading={list.isLoading}
-                  loadingContent={<Spinner label="Loading..." />}
-                >
-                  {(item) => (
-                    <TableRow key={item.logs_id}>
-                      {logColumns.map((col) => (
-                        <TableCell key={col.key} className="border px-4 py-2">
-                          {col.key === "startTime" || col.key === "stopTime"
-                            ? formatToKoreanTime(item[col.key])
-                            : getKeyValue(item, col.key)}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            )}
+                {(item) => (
+                  <TableRow key={item.logs_id}>
+                    {logColumns.map((col) => (
+                      <TableCell key={col.key} className="border px-4 py-2">
+                        {col.key === "startTime" || col.key === "stopTime"
+                          ? formatToKoreanTime(item[col.key])
+                          : getKeyValue(item, col.key)}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           </div>
 
           {/* Sessions Table */}
           <div>
             <div className="text-xl font-semibold px-6">Sessions</div>
-            {sessions.length === 0 ? (
-              <div>세션 로그가 없습니다.</div>
-            ) : (
-              <Table
-                classNames={tableClassNames}
-                baseRef={sessionsScrollerRef}
-                bottomContent={
-                  <div className="p-2 text-center">
-                    <Spinner ref={sessionsLoaderRef} color="white" />
-                  </div>
-                }
-                aria-label="Sessions Table"
-                isHeaderSticky
+
+            <Table
+              classNames={tableClassNames}
+              baseRef={sessionsScrollerRef}
+              bottomContent={
+                <div className="p-2 text-center">
+                  <Spinner ref={sessionsLoaderRef} color="white" />
+                </div>
+              }
+              aria-label="Sessions Table"
+              isHeaderSticky
+            >
+              <TableHeader>
+                {sessionColumns.map((col) => (
+                  <TableColumn
+                    key={col.key}
+                    className="border px-4 py-2 bg-green-200 sticky top-0 z-10"
+                  >
+                    {col.label}
+                  </TableColumn>
+                ))}
+              </TableHeader>
+              <TableBody
+                items={sessions}
+                isLoading={list.isLoading}
+                loadingContent={<Spinner label="Loading..." />}
               >
-                <TableHeader>
-                  {sessionColumns.map((col) => (
-                    <TableColumn
-                      key={col.key}
-                      className="border px-4 py-2 bg-green-200 sticky top-0 z-10"
-                    >
-                      {col.label}
-                    </TableColumn>
-                  ))}
-                </TableHeader>
-                <TableBody
-                  items={sessions}
-                  isLoading={list.isLoading}
-                  loadingContent={<Spinner label="Loading..." />}
-                >
-                  {(item) => (
-                    <TableRow key={item.session_id}>
-                      {sessionColumns.map((col) => (
-                        <TableCell key={col.key} className="border px-4 py-2">
-                          {(() => {
-                            const key = col.key as keyof SessionEntry;
+                {(item) => (
+                  <TableRow key={item.session_id}>
+                    {sessionColumns.map((col) => (
+                      <TableCell key={col.key} className="border px-4 py-2">
+                        {(() => {
+                          const key = col.key as keyof SessionEntry;
 
-                            if (
-                              key === "appEnterTime" ||
-                              key === "appExitTime" ||
-                              key === "shortsEnterTime" ||
-                              key === "shortsExitTime"
-                            ) {
-                              return formatToKoreanTime(item[key]);
-                            }
+                          if (
+                            key === "appEnterTime" ||
+                            key === "appExitTime" ||
+                            key === "shortsEnterTime" ||
+                            key === "shortsExitTime"
+                          ) {
+                            return formatToKoreanTime(item[key]);
+                          }
 
-                            return getKeyValue(item, key);
-                          })()}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            )}
+                          return getKeyValue(item, key);
+                        })()}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           </div>
         </>
       )}
