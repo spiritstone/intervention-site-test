@@ -83,7 +83,7 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="flex flex-col gap-8 p-6">
+    <div className="flex flex-col gap-8 p-6 bg-white text-black">
       <div className="text-xl font-bold">관리자 설정: 참가자 정보 업로드</div>
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
