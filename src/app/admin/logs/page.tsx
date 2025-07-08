@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import {
   Table,
   TableHeader,
@@ -8,58 +8,103 @@ import {
   TableColumn,
   TableRow,
   TableCell,
+  getKeyValue,
 } from "@heroui/table";
 import { Participant, LogEntry, SessionEntry } from "@/app/types/logTypes";
 import { formatToKoreanTime } from "@/app/utils/format";
+import { useInfiniteScroll } from "@heroui/use-infinite-scroll";
+import { useAsyncList } from "@react-stately/data";
+import { Spinner } from "@heroui/spinner";
 
 export default function LogsPage() {
-  const [participants, setParticipants] = useState<Participant[]>([]);
-  const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [sessions, setSessions] = useState<SessionEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Define columns for each table
+  const participantColumns = [
+    { key: "userId", label: "User ID" },
+    { key: "shortsCount", label: "Shorts Count" },
+    { key: "modalDuration", label: "Modal Duration" },
+    { key: "modalType", label: "Modal Type" },
+  ];
+  const logColumns = [
+    { key: "userId", label: "User ID" },
+    { key: "interventionIndex", label: "Intervention Index" },
+    { key: "shortsWatched", label: "Shorts Watched" },
+    { key: "modType", label: "Modality Type" },
+    { key: "modDuration", label: "Modality Duration" },
+    { key: "startTime", label: "Start Time" },
+    { key: "stopTime", label: "Stop Time" },
+    { key: "durationSec", label: "Duration (Sec)" },
+  ];
+  const sessionColumns = [
+    { key: "userId", label: "User ID" },
+    { key: "actionType", label: "Action Type" },
+    { key: "appEnterTime", label: "App Enter" },
+    { key: "appExitTime", label: "App Exit" },
+    { key: "appDurationSec", label: "App Duration (Seconds)" },
+    { key: "shortsEnterTime", label: "Shorts Enter" },
+    { key: "shortsExitTime", label: "Shorts Exit" },
+    { key: "shortsDurationSec", label: "Shorts Duration (Seconds)" },
+    // { key: "shortsWatchedTotal", label: "Shorts Watched" },
+    // { key: "modalPoints", label: "Modal Points" },
+  ];
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch("/api/admin/logs");
-        const json = await res.json();
+  // Single API call for all data
+  const list = useAsyncList<{
+    participants: Participant[];
+    logs: LogEntry[];
+    sessions: SessionEntry[];
+  }>({
+    async load() {
+      const res = await fetch("/api/admin/logs");
+      const json = await res.json();
+      if (!res.ok)
+        throw new Error(json.error || "데이터를 불러오는 데 실패했습니다.");
+      return { items: [json] };
+    },
+  });
 
-        console.log("🔍 API result:", json);
-        if (!res.ok) {
-          setError(json.error || "데이터를 불러오는 데 실패했습니다.");
-          return;
-        }
-        setParticipants(json.participants || []);
-        setLogs(json.logs || []);
-        setSessions(json.sessions || []);
-      } catch (err) {
-        console.error("Error fetching data:", err);
-        setError("알 수 없는 오류가 발생했습니다.");
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Extract the arrays from the fetched data
+  const participants = list.items[0]?.participants || [];
+  const logs = list.items[0]?.logs || [];
+  const sessions = list.items[0]?.sessions || [];
 
-    fetchData();
-  }, []);
+  // Infinite scroll hooks for each table
+  const [participantsLoaderRef, participantsScrollerRef] = useInfiniteScroll({
+    hasMore: false,
+  });
+
+  const [logsLoaderRef, logsScrollerRef] = useInfiniteScroll({
+    hasMore: false,
+  });
+
+  const [sessionsLoaderRef, sessionsScrollerRef] = useInfiniteScroll({
+    hasMore: false,
+  });
 
   const tableClassNames = useMemo(
     () => ({
       wrapper: ["px-4 table-auto w-full"],
-      thead: ["bg-green-200", "text-black", "border-b", "border-divider"],
+      thead: [
+        "bg-green-200",
+        "text-black",
+        "border-b",
+        "border-divider",
+        "sticky",
+        "top-0",
+        "z-10",
+      ],
     }),
     []
   );
+
   return (
     <div className="flex flex-col gap-6 bg-white text-black">
       <div className="text-2xl font-bold p-6 text-black">실험 로그</div>
-
-      {loading && <div className="p-4">불러오는 중...</div>}
-      {error && <div className="text-red-500">{error}</div>}
-
-      {!loading && !error && (
+      {/* {list.isLoading && <div className="p-4">불러오는 중...</div>} */}
+      {list.error && <div className="text-red-500">{String(list.error)}</div>}
+      {/* {!list.isLoading && !list.error && ( */}
+      {!list.error && (
         <>
+          {/* Participants Table */}
           <div className="p-0">
             <div className="text-xl font-semibold px-6 text-black">
               Participants
@@ -67,182 +112,154 @@ export default function LogsPage() {
             {participants.length === 0 ? (
               <div>참여자 없음</div>
             ) : (
-              <Table classNames={tableClassNames}>
-                <TableHeader className="">
-                  <TableColumn className="border px-4 py-2">
-                    User ID
-                  </TableColumn>
-                  <TableColumn className="border px-4 py-2">
-                    Shorts Count
-                  </TableColumn>
-                  <TableColumn className="border px-4 py-2">
-                    Modal Duration
-                  </TableColumn>
-                  <TableColumn className="border px-4 py-2">
-                    Modal Type
-                  </TableColumn>
-                </TableHeader>
-                <TableBody>
-                  {participants.map((p) => (
-                    <TableRow key={p.id}>
-                      <TableCell className="border px-4 py-2">
-                        {p.userId}
-                      </TableCell>
-                      <TableCell className="border px-4 py-2">
-                        {p.shortsCount.join(", ")}
-                      </TableCell>
-                      <TableCell className="border px-4 py-2">
-                        {p.modalDuration.join(", ")}
-                      </TableCell>
-                      <TableCell className="border px-4 py-2">
-                        {p.modalType.join(", ")}
-                      </TableCell>
-                    </TableRow>
+              <Table
+                classNames={tableClassNames}
+                baseRef={participantsScrollerRef}
+                bottomContent={
+                  <div className="p-2 text-center">
+                    <Spinner ref={participantsLoaderRef} color="white" />
+                  </div>
+                }
+                aria-label="Participants Table"
+                isHeaderSticky
+              >
+                <TableHeader>
+                  {participantColumns.map((col) => (
+                    <TableColumn
+                      key={col.key}
+                      className="border px-4 py-2 bg-green-200 sticky top-0 z-10"
+                    >
+                      {col.label}
+                    </TableColumn>
                   ))}
+                </TableHeader>
+                <TableBody
+                  items={participants}
+                  isLoading={list.isLoading}
+                  loadingContent={<Spinner label="Loading..." />}
+                >
+                  {(item) => (
+                    <TableRow key={item.id}>
+                      {participantColumns.map((col) => (
+                        <TableCell key={col.key} className="border px-4 py-2">
+                          {col.key === "shortsCount" ||
+                          col.key === "modalDuration" ||
+                          col.key === "modalType"
+                            ? Array.isArray(item[col.key])
+                              ? item[col.key].join(", ")
+                              : ""
+                            : getKeyValue(item, col.key)}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             )}
           </div>
 
+          {/* Logs Table */}
           <div>
             <div className="text-xl font-semibold px-6">Logs</div>
             {logs.length === 0 ? (
               <div>로그가 없습니다.</div>
             ) : (
-              <Table classNames={tableClassNames}>
-                <TableHeader className="">
-                  <TableColumn className="border px-4 py-2">
-                    User ID
-                  </TableColumn>
-                  <TableColumn className="border px-4 py-2">
-                    Intervention Index
-                  </TableColumn>
-                  <TableColumn className="border px-4 py-2">
-                    Shorts Watched
-                  </TableColumn>
-                  <TableColumn className="border px-4 py-2">
-                    Modality Type
-                  </TableColumn>
-                  <TableColumn className="border px-4 py-2">
-                    Modality Duration
-                  </TableColumn>
-                  <TableColumn className="border px-4 py-2">
-                    Start Time
-                  </TableColumn>
-                  <TableColumn className="border px-4 py-2">
-                    Stop Time
-                  </TableColumn>
-                  <TableColumn className="border px-4 py-2">
-                    Duration (Sec)
-                  </TableColumn>
-                </TableHeader>
-                <TableBody>
-                  {logs.map((log) => (
-                    <TableRow key={log.logs_id}>
-                      <TableCell className="border px-4 py-2">
-                        {log.userId}
-                      </TableCell>
-                      <TableCell className="border px-4 py-2">
-                        {log.interventionIndex}
-                      </TableCell>
-                      <TableCell className="border px-4 py-2">
-                        {log.shortsWatched}
-                      </TableCell>
-                      <TableCell className="border px-4 py-2">
-                        {log.modType}
-                      </TableCell>
-                      <TableCell className="border px-4 py-2">
-                        {log.modDuration}
-                      </TableCell>
-                      <TableCell className="border px-4 py-2">
-                        {formatToKoreanTime(log.startTime)}
-                      </TableCell>
-                      <TableCell className="border px-4 py-2">
-                        {formatToKoreanTime(log.stopTime)}
-                      </TableCell>
-                      <TableCell className="border px-4 py-2">
-                        {log.durationSec}
-                      </TableCell>
-                    </TableRow>
+              <Table
+                classNames={tableClassNames}
+                baseRef={logsScrollerRef}
+                bottomContent={
+                  <div className="p-2 text-center">
+                    <Spinner ref={logsLoaderRef} color="white" />
+                  </div>
+                }
+                aria-label="Logs Table"
+                isHeaderSticky
+              >
+                <TableHeader>
+                  {logColumns.map((col) => (
+                    <TableColumn
+                      key={col.key}
+                      className="border px-4 py-2 bg-green-200 sticky top-0 z-10"
+                    >
+                      {col.label}
+                    </TableColumn>
                   ))}
+                </TableHeader>
+                <TableBody
+                  items={logs}
+                  isLoading={list.isLoading}
+                  loadingContent={<Spinner label="Loading..." />}
+                >
+                  {(item) => (
+                    <TableRow key={item.logs_id}>
+                      {logColumns.map((col) => (
+                        <TableCell key={col.key} className="border px-4 py-2">
+                          {col.key === "startTime" || col.key === "stopTime"
+                            ? formatToKoreanTime(item[col.key])
+                            : getKeyValue(item, col.key)}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             )}
           </div>
 
+          {/* Sessions Table */}
           <div>
             <div className="text-xl font-semibold px-6">Sessions</div>
             {sessions.length === 0 ? (
               <div>세션 로그가 없습니다.</div>
             ) : (
-              <Table classNames={tableClassNames}>
-                <TableHeader className="bg-gray-100">
-                  <TableColumn className="border px-4 py-2">
-                    User ID
-                  </TableColumn>
-                  <TableColumn className="border px-4 py-2">
-                    Action Type
-                  </TableColumn>
-                  <TableColumn className="border px-4 py-2">
-                    App Enter
-                  </TableColumn>
-                  <TableColumn className="border px-4 py-2">
-                    App Exit
-                  </TableColumn>
-                  <TableColumn className="border px-4 py-2">
-                    App Duration (Seconds)
-                  </TableColumn>
-                  <TableColumn className="border px-4 py-2">
-                    Shorts Enter
-                  </TableColumn>
-                  <TableColumn className="border px-4 py-2">
-                    Shorts Exit
-                  </TableColumn>
-                  <TableColumn className="border px-4 py-2">
-                    Shorts Duration (Seconds)
-                  </TableColumn>
-                  {/* <TableColumn className="border px-4 py-2">
-                    Shorts Watched
-                  </TableColumn>
-                  <TableColumn className="border px-4 py-2">
-                    Modal Points
-                  </TableColumn> */}
-                </TableHeader>
-                <TableBody>
-                  {sessions.map((s) => (
-                    <TableRow key={s.session_id}>
-                      <TableCell className="border px-4 py-2">
-                        {s.userId}
-                      </TableCell>
-                      <TableCell className="border px-4 py-2">
-                        {s.actionType}
-                      </TableCell>
-                      <TableCell className="border px-4 py-2">
-                        {formatToKoreanTime(s.appEnterTime)}
-                      </TableCell>
-                      <TableCell className="border px-4 py-2">
-                        {formatToKoreanTime(s.appExitTime)}
-                      </TableCell>
-                      <TableCell className="border px-4 py-2">
-                        {s.appDurationSec}
-                      </TableCell>
-                      <TableCell className="border px-4 py-2">
-                        {formatToKoreanTime(s.shortsEnterTime)}
-                      </TableCell>
-                      <TableCell className="border px-4 py-2">
-                        {formatToKoreanTime(s.shortsExitTime)}
-                      </TableCell>
-                      <TableCell className="border px-4 py-2">
-                        {s.shortsDurationSec}
-                      </TableCell>
-                      {/* <TableCell className="border px-4 py-2">
-                        {s.shortsWatchedTotal}
-                      </TableCell>
-                      <TableCell className="border px-4 py-2">
-                        {s.modalPoints?.join(", ")}
-                      </TableCell> */}
-                    </TableRow>
+              <Table
+                classNames={tableClassNames}
+                baseRef={sessionsScrollerRef}
+                bottomContent={
+                  <div className="p-2 text-center">
+                    <Spinner ref={sessionsLoaderRef} color="white" />
+                  </div>
+                }
+                aria-label="Sessions Table"
+                isHeaderSticky
+              >
+                <TableHeader>
+                  {sessionColumns.map((col) => (
+                    <TableColumn
+                      key={col.key}
+                      className="border px-4 py-2 bg-green-200 sticky top-0 z-10"
+                    >
+                      {col.label}
+                    </TableColumn>
                   ))}
+                </TableHeader>
+                <TableBody
+                  items={sessions}
+                  isLoading={list.isLoading}
+                  loadingContent={<Spinner label="Loading..." />}
+                >
+                  {(item) => (
+                    <TableRow key={item.session_id}>
+                      {sessionColumns.map((col) => (
+                        <TableCell key={col.key} className="border px-4 py-2">
+                          {(() => {
+                            const key = col.key as keyof SessionEntry;
+
+                            if (
+                              key === "appEnterTime" ||
+                              key === "appExitTime" ||
+                              key === "shortsEnterTime" ||
+                              key === "shortsExitTime"
+                            ) {
+                              return formatToKoreanTime(item[key]);
+                            }
+
+                            return getKeyValue(item, key);
+                          })()}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             )}
