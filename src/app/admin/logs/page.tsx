@@ -1,26 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { ModalityType } from "../../types/modality";
-
-interface LogEntry {
-  logs_id: number;
-  logs_userId: string;
-  totalShortsCount: number;
-  totalDuration: number;
-}
-
-interface Participant {
-  id: number;
-  userId: string;
-  shortsCount: number[];
-  modalDuration: number[];
-  modalType: ModalityType[];
-}
+import { useEffect, useMemo, useState } from "react";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableColumn,
+  TableRow,
+  TableCell,
+} from "@heroui/table";
+import { Participant, LogEntry, SessionEntry } from "@/app/types/logTypes";
+import { formatToKoreanTime } from "@/app/utils/format";
 
 export default function LogsPage() {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [sessions, setSessions] = useState<SessionEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,6 +32,7 @@ export default function LogsPage() {
         }
         setParticipants(json.participants || []);
         setLogs(json.logs || []);
+        setSessions(json.sessions || []);
       } catch (err) {
         console.error("Error fetching data:", err);
         setError("알 수 없는 오류가 발생했습니다.");
@@ -48,76 +44,207 @@ export default function LogsPage() {
     fetchData();
   }, []);
 
+  const tableClassNames = useMemo(
+    () => ({
+      wrapper: ["px-4 table-auto w-full"],
+      thead: ["bg-green-200", "text-default-500", "border-b", "border-divider"],
+    }),
+    []
+  );
   return (
-    <div className="flex flex-col gap-8">
-      <h1 className="text-2xl font-bold">실험 로그</h1>
+    <div className="flex flex-col gap-6">
+      <div className="text-2xl font-bold p-6">실험 로그</div>
 
-      {loading && <p>불러오는 중...</p>}
-      {error && <p className="text-red-500">{error}</p>}
+      {loading && <div>불러오는 중...</div>}
+      {error && <div className="text-red-500">{error}</div>}
 
       {!loading && !error && (
         <>
-          <section>
-            <h2 className="text-xl font-semibold mb-2">Participants</h2>
+          <div className="p-0">
+            <div className="text-xl font-semibold px-6">Participants</div>
             {participants.length === 0 ? (
-              <p>참여자 없음</p>
+              <div>참여자 없음</div>
             ) : (
-              <table className="table-auto w-full border border-gray-300 mb-8">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="border px-4 py-2">User ID</th>
-                    <th className="border px-4 py-2">Shorts Count</th>
-                    <th className="border px-4 py-2">Modal Duration</th>
-                    <th className="border px-4 py-2">Modal Type</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <Table classNames={tableClassNames}>
+                <TableHeader className="">
+                  <TableColumn className="border px-4 py-2">
+                    User ID
+                  </TableColumn>
+                  <TableColumn className="border px-4 py-2">
+                    Shorts Count
+                  </TableColumn>
+                  <TableColumn className="border px-4 py-2">
+                    Modal Duration
+                  </TableColumn>
+                  <TableColumn className="border px-4 py-2">
+                    Modal Type
+                  </TableColumn>
+                </TableHeader>
+                <TableBody>
                   {participants.map((p) => (
-                    <tr key={p.id}>
-                      <td className="border px-4 py-2">{p.userId}</td>
-                      <td className="border px-4 py-2">
+                    <TableRow key={p.id}>
+                      <TableCell className="border px-4 py-2">
+                        {p.userId}
+                      </TableCell>
+                      <TableCell className="border px-4 py-2">
                         {p.shortsCount.join(", ")}
-                      </td>
-                      <td className="border px-4 py-2">
+                      </TableCell>
+                      <TableCell className="border px-4 py-2">
                         {p.modalDuration.join(", ")}
-                      </td>
-                      <td className="border px-4 py-2">
+                      </TableCell>
+                      <TableCell className="border px-4 py-2">
                         {p.modalType.join(", ")}
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             )}
-          </section>
+          </div>
 
-          <section>
-            <h2 className="text-xl font-semibold mb-2">Logs</h2>
+          <div>
+            <div className="text-xl font-semibold px-6">Logs</div>
             {logs.length === 0 ? (
-              <p>로그가 없습니다.</p>
+              <div>로그가 없습니다.</div>
             ) : (
-              <table className="table-auto w-full border border-gray-300">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="border px-4 py-2">User ID</th>
-                    <th className="border px-4 py-2">Total Shorts Count</th>
-                    <th className="border px-4 py-2">Total Duration</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <Table classNames={tableClassNames}>
+                <TableHeader className="">
+                  <TableColumn className="border px-4 py-2">
+                    User ID
+                  </TableColumn>
+                  <TableColumn className="border px-4 py-2">
+                    Intervention Index
+                  </TableColumn>
+                  <TableColumn className="border px-4 py-2">
+                    Shorts Watched
+                  </TableColumn>
+                  <TableColumn className="border px-4 py-2">
+                    Modality Type
+                  </TableColumn>
+                  <TableColumn className="border px-4 py-2">
+                    Modality Duration
+                  </TableColumn>
+                  <TableColumn className="border px-4 py-2">
+                    Start Time
+                  </TableColumn>
+                  <TableColumn className="border px-4 py-2">
+                    Stop Time
+                  </TableColumn>
+                  <TableColumn className="border px-4 py-2">
+                    Duration (Sec)
+                  </TableColumn>
+                </TableHeader>
+                <TableBody>
                   {logs.map((log) => (
-                    <tr key={log.logs_id}>
-                      <td className="border px-4 py-2">{log.logs_userId}</td>
-                      <td className="border px-4 py-2">
-                        {log.totalShortsCount}
-                      </td>
-                      <td className="border px-4 py-2">{log.totalDuration}</td>
-                    </tr>
+                    <TableRow key={log.logs_id}>
+                      <TableCell className="border px-4 py-2">
+                        {log.userId}
+                      </TableCell>
+                      <TableCell className="border px-4 py-2">
+                        {log.interventionIndex}
+                      </TableCell>
+                      <TableCell className="border px-4 py-2">
+                        {log.shortsWatched}
+                      </TableCell>
+                      <TableCell className="border px-4 py-2">
+                        {log.modType}
+                      </TableCell>
+                      <TableCell className="border px-4 py-2">
+                        {log.modDuration}
+                      </TableCell>
+                      <TableCell className="border px-4 py-2">
+                        {formatToKoreanTime(log.startTime)}
+                      </TableCell>
+                      <TableCell className="border px-4 py-2">
+                        {formatToKoreanTime(log.stopTime)}
+                      </TableCell>
+                      <TableCell className="border px-4 py-2">
+                        {log.durationSec}
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             )}
-          </section>
+          </div>
+
+          <div>
+            <div className="text-xl font-semibold px-6">Sessions</div>
+            {sessions.length === 0 ? (
+              <div>세션 로그가 없습니다.</div>
+            ) : (
+              <Table classNames={tableClassNames}>
+                <TableHeader className="bg-gray-100">
+                  <TableColumn className="border px-4 py-2">
+                    User ID
+                  </TableColumn>
+                  <TableColumn className="border px-4 py-2">
+                    Action Type
+                  </TableColumn>
+                  <TableColumn className="border px-4 py-2">
+                    App Enter
+                  </TableColumn>
+                  <TableColumn className="border px-4 py-2">
+                    App Exit
+                  </TableColumn>
+                  <TableColumn className="border px-4 py-2">
+                    App Duration (Seconds)
+                  </TableColumn>
+                  <TableColumn className="border px-4 py-2">
+                    Shorts Enter
+                  </TableColumn>
+                  <TableColumn className="border px-4 py-2">
+                    Shorts Exit
+                  </TableColumn>
+                  <TableColumn className="border px-4 py-2">
+                    Shorts Duration (Seconds)
+                  </TableColumn>
+                  <TableColumn className="border px-4 py-2">
+                    Shorts Watched
+                  </TableColumn>
+                  <TableColumn className="border px-4 py-2">
+                    Modal Points
+                  </TableColumn>
+                </TableHeader>
+                <TableBody>
+                  {sessions.map((s) => (
+                    <TableRow key={s.session_id}>
+                      <TableCell className="border px-4 py-2">
+                        {s.userId}
+                      </TableCell>
+                      <TableCell className="border px-4 py-2">
+                        {s.actionType}
+                      </TableCell>
+                      <TableCell className="border px-4 py-2">
+                        {formatToKoreanTime(s.appEnterTime)}
+                      </TableCell>
+                      <TableCell className="border px-4 py-2">
+                        {formatToKoreanTime(s.appExitTime)}
+                      </TableCell>
+                      <TableCell className="border px-4 py-2">
+                        {s.appDurationSec}
+                      </TableCell>
+                      <TableCell className="border px-4 py-2">
+                        {formatToKoreanTime(s.shortsEnterTime)}
+                      </TableCell>
+                      <TableCell className="border px-4 py-2">
+                        {formatToKoreanTime(s.shortsExitTime)}
+                      </TableCell>
+                      <TableCell className="border px-4 py-2">
+                        {s.shortsDurationSec}
+                      </TableCell>
+                      <TableCell className="border px-4 py-2">
+                        {s.shortsWatchedTotal}
+                      </TableCell>
+                      <TableCell className="border px-4 py-2">
+                        {s.modalPoints?.join(", ")}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </div>
         </>
       )}
     </div>
