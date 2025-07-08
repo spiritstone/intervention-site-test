@@ -47,21 +47,23 @@ export default function LogsPage() {
   const tableClassNames = useMemo(
     () => ({
       wrapper: ["px-4 table-auto w-full"],
-      thead: ["bg-green-200", "text-default-500", "border-b", "border-divider"],
+      thead: ["bg-green-200", "text-black", "border-b", "border-divider"],
     }),
     []
   );
   return (
-    <div className="flex flex-col gap-6">
-      <div className="text-2xl font-bold p-6">실험 로그</div>
+    <div className="flex flex-col gap-6 bg-white text-black">
+      <div className="text-2xl font-bold p-6 text-black">실험 로그</div>
 
-      {loading && <div>불러오는 중...</div>}
+      {loading && <div className="p-4">불러오는 중...</div>}
       {error && <div className="text-red-500">{error}</div>}
 
       {!loading && !error && (
         <>
           <div className="p-0">
-            <div className="text-xl font-semibold px-6">Participants</div>
+            <div className="text-xl font-semibold px-6 text-black">
+              Participants
+            </div>
             {participants.length === 0 ? (
               <div>참여자 없음</div>
             ) : (
@@ -199,12 +201,12 @@ export default function LogsPage() {
                   <TableColumn className="border px-4 py-2">
                     Shorts Duration (Seconds)
                   </TableColumn>
-                  <TableColumn className="border px-4 py-2">
+                  {/* <TableColumn className="border px-4 py-2">
                     Shorts Watched
                   </TableColumn>
                   <TableColumn className="border px-4 py-2">
                     Modal Points
-                  </TableColumn>
+                  </TableColumn> */}
                 </TableHeader>
                 <TableBody>
                   {sessions.map((s) => (
@@ -233,12 +235,12 @@ export default function LogsPage() {
                       <TableCell className="border px-4 py-2">
                         {s.shortsDurationSec}
                       </TableCell>
-                      <TableCell className="border px-4 py-2">
+                      {/* <TableCell className="border px-4 py-2">
                         {s.shortsWatchedTotal}
                       </TableCell>
                       <TableCell className="border px-4 py-2">
                         {s.modalPoints?.join(", ")}
-                      </TableCell>
+                      </TableCell> */}
                     </TableRow>
                   ))}
                 </TableBody>
