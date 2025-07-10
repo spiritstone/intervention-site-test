@@ -16,14 +16,18 @@ export async function GET() {
       .from("logs")
       .select("*");
 
-    if (participantsError || logsError) {
+    const { data: sessions, error: sessionsError } = await supabase
+      .from("sessions")
+      .select("*");
+
+    if (participantsError || logsError || sessionsError) {
       return NextResponse.json(
-        { error: participantsError ?? logsError },
+        { error: participantsError ?? logsError ?? sessionsError },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ participants, logs });
+    return NextResponse.json({ participants, logs, sessions });
   } catch (err) {
     return NextResponse.json(
       { error: "Unexpected error", details: String(err) },

@@ -2,10 +2,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-// Use environment variables for secure server-side Supabase client
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY! // ✅ SERVER-ONLY KEY 사용
 );
 
 export async function POST(req: NextRequest) {
@@ -13,22 +12,20 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     console.log(">>> API 요청 데이터:", body);
 
-    // const { userId, shortsCount, modalDuration, modalType } = body;
+    const { userId, shortsCount, modalDuration, modalType } = body;
 
-    // table name: participants
-    const { data, error } = await supabase.from("participants").select("*");
-    // const { data, error } = await supabase.from("participants").upsert(
-    //   [
-    //     {
-    //       userId,
-    //       shortsCount,
-    //       modalDuration,
-    //       modalType,
-    //       created_at: new Date().toISOString(),
-    //     },
-    //   ],
-    //   { onConflict: "userId" }
-    // );
+    // ✅ 참가자 데이터 삽입
+    const { data, error } = await supabase.from("participants").upsert(
+      [
+        {
+          userId,
+          shortsCount,
+          modalDuration,
+          modalType,
+        },
+      ],
+      { onConflict: "userId" } // ✅ userId 기준으로 덮어쓰기
+    );
 
     if (error) {
       console.error("❌ Supabase insert error:", error);
