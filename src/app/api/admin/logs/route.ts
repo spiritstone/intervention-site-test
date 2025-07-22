@@ -18,7 +18,8 @@ export async function GET() {
 
     const { data: sessions, error: sessionsError } = await supabase
       .from("sessions")
-      .select("*");
+      .select("*")
+      .order("session_id", { ascending: true });
 
     if (participantsError || logsError || sessionsError) {
       return NextResponse.json(
