@@ -10,15 +10,16 @@ export async function GET() {
   try {
     const { data: participants, error: participantsError } = await supabase
       .from("participants")
-      .select("*");
-
+      .select("*")
+      .order("id", { ascending: true });
     const { data: logs, error: logsError } = await supabase
       .from("logs")
       .select("*");
 
     const { data: sessions, error: sessionsError } = await supabase
       .from("sessions")
-      .select("*");
+      .select("*")
+      .order("session_id", { ascending: true });
 
     if (participantsError || logsError || sessionsError) {
       return NextResponse.json(
