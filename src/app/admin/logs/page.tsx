@@ -43,7 +43,7 @@ export default function LogsPage() {
     { key: "shortsEnterTime", label: "Shorts Enter" },
     { key: "shortsExitTime", label: "Shorts Exit" },
     { key: "shortsDurationSec", label: "Shorts Duration (Seconds)" },
-    // { key: "shortsWatchedTotal", label: "Shorts Watched" },
+    { key: "shortsWatchedTotal", label: "Shorts Watched" },
     // { key: "modalPoints", label: "Modal Points" },
   ];
 
