@@ -10,8 +10,8 @@ export async function GET() {
   try {
     const { data: participants, error: participantsError } = await supabase
       .from("participants")
-      .select("*");
-
+      .select("*")
+      .order("id", { ascending: true });
     const { data: logs, error: logsError } = await supabase
       .from("logs")
       .select("*");
