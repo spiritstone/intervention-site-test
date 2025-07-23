@@ -24,17 +24,19 @@ export default function LogsPage() {
     { key: "modalDuration", label: "Modal Duration" },
     { key: "modalType", label: "Modal Type" },
   ];
-  const logColumns = [
-    { key: "userId", label: "User ID" },
-    { key: "interventionIndex", label: "Intervention Index" },
-    { key: "shortsWatched", label: "Shorts Watched" },
-    { key: "modType", label: "Modality Type" },
-    { key: "modDuration", label: "Modality Duration" },
-    { key: "startTime", label: "Start Time" },
-    { key: "stopTime", label: "Stop Time" },
-    { key: "durationSec", label: "Duration (Sec)" },
-  ];
+  // const logColumns = [
+  //   { key: "userId", label: "User ID" },
+  //   { key: "interventionIndex", label: "Intervention Index" },
+  //   { key: "shortsWatched", label: "Shorts Watched" },
+  //   { key: "modType", label: "Modality Type" },
+  //   { key: "modDuration", label: "Modality Duration" },
+  //   { key: "startTime", label: "Start Time" },
+  //   { key: "stopTime", label: "Stop Time" },
+  //   { key: "durationSec", label: "Duration (Sec)" },
+  // ];
   const sessionColumns = [
+    { key: "session_id", label: "No" },
+
     { key: "userId", label: "User ID" },
     { key: "actionType", label: "Action Type" },
     { key: "appEnterTime", label: "App Enter" },
@@ -64,7 +66,7 @@ export default function LogsPage() {
 
   // Extract the arrays from the fetched data
   const participants = list.items[0]?.participants || [];
-  const logs = list.items[0]?.logs || [];
+  // const logs = list.items[0]?.logs || [];
   const sessions = list.items[0]?.sessions || [];
 
   // Infinite scroll hooks for each table
@@ -72,9 +74,9 @@ export default function LogsPage() {
     hasMore: false,
   });
 
-  const [logsLoaderRef, logsScrollerRef] = useInfiniteScroll({
-    hasMore: false,
-  });
+  // const [logsLoaderRef, logsScrollerRef] = useInfiniteScroll({
+  //   hasMore: false,
+  // });
 
   const [sessionsLoaderRef, sessionsScrollerRef] = useInfiniteScroll({
     hasMore: false,
@@ -210,7 +212,7 @@ export default function LogsPage() {
             </Table>
           </div>
           {/* Logs Table */}
-          <div>
+          {/*<div>
             <div className="text-xl font-semibold px-6">Logs</div>
 
             <Table
@@ -252,7 +254,7 @@ export default function LogsPage() {
                 )}
               </TableBody>
             </Table>
-          </div>
+          </div> */}
         </>
       )}
     </div>
