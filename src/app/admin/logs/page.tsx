@@ -35,6 +35,8 @@ export default function LogsPage() {
     { key: "durationSec", label: "Duration (Sec)" },
   ];
   const sessionColumns = [
+    { key: "session_id", label: "No" },
+
     { key: "userId", label: "User ID" },
     { key: "actionType", label: "Action Type" },
     { key: "appEnterTime", label: "App Enter" },
@@ -210,7 +212,7 @@ export default function LogsPage() {
             </Table>
           </div>
           {/* Logs Table */}
-          <div>
+          {/*<div>
             <div className="text-xl font-semibold px-6">Logs</div>
 
             <Table
@@ -252,7 +254,7 @@ export default function LogsPage() {
                 )}
               </TableBody>
             </Table>
-          </div>
+          </div> */}
         </>
       )}
     </div>
