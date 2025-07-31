@@ -15,6 +15,12 @@ import { formatToKoreanTime } from "@/app/utils/format";
 import { useInfiniteScroll } from "@heroui/use-infinite-scroll";
 import { useAsyncList } from "@react-stately/data";
 import { Spinner } from "@heroui/spinner";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export default function LogsPage() {
   // Define columns for each table
@@ -98,6 +104,27 @@ export default function LogsPage() {
     []
   );
 
+  const downloadCSV = async (table: string) => {
+    const { data, error } = await supabase
+      .from(table)
+      .select("*", { head: false })
+      .csv();
+
+    if (error) {
+      alert(`CSV 다운로드 중 오류 발생: ${error.message}`);
+      return;
+    }
+
+    const blob = new Blob([data], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `${table}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="flex flex-col gap-6 bg-white text-black">
       <div className="text-2xl font-bold p-6 text-black">실험 로그</div>
@@ -108,10 +135,19 @@ export default function LogsPage() {
         <>
           {/* Participants Table */}
           <div className="p-0">
-            <div className="text-xl font-semibold px-6 text-black">
-              Participants
+            <div className="flex justify-between flex-row items-center">
+              <div className="text-xl font-semibold px-6 text-black">
+                Participants
+              </div>
+              <div className="text-sm font-semibold px-6 py-2 text-black">
+                <button
+                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                  onClick={() => downloadCSV("participants")}
+                >
+                  CSV 다운로드
+                </button>
+              </div>
             </div>
-
             <Table
               classNames={tableClassNames}
               baseRef={participantsScrollerRef}
@@ -157,9 +193,18 @@ export default function LogsPage() {
             </Table>
           </div>
           {/* Sessions Table */}
-          <div>
-            <div className="text-xl font-semibold px-6">Sessions</div>
-
+          <div className="p-0">
+            <div className="flex justify-between flex-row items-center">
+              <div className="text-xl font-semibold px-6">Sessions</div>
+              <div className="text-sm font-semibold px-6 py-2 text-black">
+                <button
+                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                  onClick={() => downloadCSV("sessions")}
+                >
+                  CSV 다운로드
+                </button>
+              </div>
+            </div>
             <Table
               classNames={tableClassNames}
               baseRef={sessionsScrollerRef}
