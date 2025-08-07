@@ -232,11 +232,19 @@ export default function LogsPage() {
                 loadingContent={<Spinner label="Loading..." />}
               >
                 {(item) => (
-                  <TableRow key={item.session_id}>
+                  <TableRow key={item.session_id} aria-label="session-row">
                     {sessionColumns.map((col) => (
                       <TableCell key={col.key} className="border px-4 py-2">
                         {(() => {
                           const key = col.key as keyof SessionEntry;
+
+                          if (key === "session_id") {
+                            return (
+                              sessions.findIndex(
+                                (s) => s.session_id === item.session_id
+                              ) + 1
+                            );
+                          }
 
                           if (
                             key === "appEnterTime" ||
