@@ -233,7 +233,7 @@ export default function LogsPage() {
               >
                 {(item) => (
                   <TableRow key={item.session_id} aria-label="session-row">
-                    {sessionColumns.map((col, index) => (
+                    {sessionColumns.map((col) => (
                       <TableCell key={col.key} className="border px-4 py-2">
                         {(() => {
                           const key = col.key as keyof SessionEntry;
